@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wanandroid_flutter/network/networkUtil.dart';
 import 'package:wanandroid_flutter/common/api.dart';
+import 'package:wanandroid_flutter/common/commonUtil.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -42,8 +43,12 @@ class HomePageState extends State<HomePage> {
           return Container(
             height: 50,
             color: Colors.white,
-            child: Center(
-              child: Text(dataList[position]["name"]),
+            child: ListTile(
+              leading: Text(dataList[position]["name"]),
+              onTap: (){
+                print(dataList[position]["name"]);
+                CommonUtil.isLogin(context, true);
+              },
             ),
           );
         },

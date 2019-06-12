@@ -17,30 +17,42 @@ class NetWorkUtil extends Dio {
     return _instance;
   }
 
-  void GET(String url, Map<String, String> param, Function successBack, Function errorBack) async {
+  void GET(String url, Map<String, dynamic> param, Function successBack, Function errorBack) async {
 
     try {
       Response<dynamic> response = await _instance.get(url, queryParameters: param);
-      if (null != response) {
-        successBack(response.data);
+      if (response.statusCode == 200) {
+        if (response.data["errorCode"] == -1) {
+          errorBack(response.data["errorMsg"]);
+        } else {
+          successBack(response.data);
+        }
+      } else {
+        errorBack(response.statusMessage);
       }
     } on DioError catch (error) {
       if (null != error){
-        errorBack(error.error);
+        errorBack(error.message);
       }
     }
   }
 
-  void POST(String url, Map<String, String> param, Function successBack, Function errorBack) async {
+  void POST(String url, Map<String, dynamic> param, Function successBack, Function errorBack) async {
 
     try {
       Response<dynamic> response = await _instance.post(url, queryParameters: param);
-      if (null != response) {
-        successBack(response.data);
+      if (response.statusCode == 200) {
+        if (response.data["errorCode"] == -1) {
+          errorBack(response.data["errorMsg"]);
+        } else {
+          successBack(response.data);
+        }
+      } else {
+        errorBack(response.statusMessage);
       }
     } on DioError catch (error) {
       if (null != error){
-        errorBack(error.error);
+        errorBack(error.message);
       }
     }
   }

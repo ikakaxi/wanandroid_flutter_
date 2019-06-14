@@ -49,6 +49,10 @@ class LoginPageState extends State<LoginPage> {
                     child: Container(),
                   ),
                   WidgetFactor.buildButton(onPressed: _clickLoginBtn, title: "登录"),
+                  Flexible(
+                    flex: 1,
+                    child: Container(),
+                  ),
                   _buildRegisterBtn(),
                 ],
               )),
@@ -62,8 +66,14 @@ class LoginPageState extends State<LoginPage> {
         onPressed: _clickRegisterBtn,
         highlightColor:Colors.white10,
         splashColor: Colors.white10,
-        textColor: Colors.blue,
-        child: Text("注册", style: TextStyle(fontSize: 14),)
+        textColor: Colors.grey,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text("还没账号?", style: TextStyle(fontSize: 14),),
+            Text("注册", style: TextStyle(fontSize: 14, color: Colors.blue),),
+          ],
+        )
     );
   }
 

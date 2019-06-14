@@ -16,4 +16,10 @@ class CommonUtil {
     }
   }
 
+  static void clickFavouriteBtn(BuildContext context,Map data){
+    if (CommonUtil.isLogin(context, true)){
+
+    }
+  }
+
 }

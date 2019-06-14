@@ -17,7 +17,7 @@ class NetWorkUtil extends Dio {
     return _instance;
   }
 
-  void GET(String url, Map<String, dynamic> param, Function successBack, Function errorBack) async {
+  Future<dynamic> GET(String url, Map<String, dynamic> param, Function successBack, Function errorBack) async {
 
     try {
       Response<dynamic> response = await _instance.get(url, queryParameters: param);
@@ -30,14 +30,16 @@ class NetWorkUtil extends Dio {
       } else {
         errorBack(response.statusMessage);
       }
+      return response.data;
     } on DioError catch (error) {
       if (null != error){
         errorBack(error.message);
       }
+      return error.error;
     }
   }
 
-  void POST(String url, Map<String, dynamic> param, Function successBack, Function errorBack) async {
+  Future<dynamic> POST(String url, Map<String, dynamic> param, Function successBack, Function errorBack) async {
 
     try {
       Response<dynamic> response = await _instance.post(url, queryParameters: param);
@@ -50,10 +52,12 @@ class NetWorkUtil extends Dio {
       } else {
         errorBack(response.statusMessage);
       }
+      return response.data;
     } on DioError catch (error) {
       if (null != error){
         errorBack(error.message);
       }
+      return error.error;
     }
   }
 }

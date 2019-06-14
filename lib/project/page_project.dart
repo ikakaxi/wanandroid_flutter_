@@ -5,13 +5,11 @@ import 'package:wanandroid_flutter/network/networkUtil.dart';
 import 'package:wanandroid_flutter/web/page_web.dart';
 
 class ProjectPage extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() => ProjectPageState();
 }
 
 class ProjectPageState extends State<ProjectPage> {
-
   List _typesList = [];
   List _dataList = [];
   Map _typeMap;
@@ -26,7 +24,6 @@ class ProjectPageState extends State<ProjectPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       endDrawer: _buildDrawerListView(),
       body: Container(
@@ -37,7 +34,11 @@ class ProjectPageState extends State<ProjectPage> {
               top: 0,
               right: 0,
               height: 50,
-              child: _buildHeader(),
+              child: Builder(
+                builder: (context) {
+                  return _buildHeader(context);
+                },
+              ),
             ),
             Positioned(
               left: 0,
@@ -52,34 +53,49 @@ class ProjectPageState extends State<ProjectPage> {
     );
   }
 
-  Widget _buildHeader() {
-
+  Widget _buildHeader(BuildContext context) {
     return Container(
-      color: Colors.white,
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(15),
-            child: Text("选择分类", style: TextStyle(fontSize: 16, color: Colors.black,),),
-          ),
-          Expanded(child: Container(),),
-          Padding(
-            padding: EdgeInsets.all(0),
-            child: Text(null == _typeMap ? "" : _typeMap["name"], style: TextStyle(fontSize: 14, color: Colors.black54,),),
-          ),
-          IconButton(
-            icon: Image(image: AssetImage('assets/project/menu_item.png'),),
-            highlightColor: Colors.white10,
-            splashColor: Colors.white10,
-            onPressed: (){
-              setState(() {
-
-              });
-            },
-          ),
-        ],
-      )
-    );
+        color: Colors.white,
+        child: Row(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.all(15),
+              child: Text(
+                "选择分类",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Container(),
+            ),
+            Padding(
+              padding: EdgeInsets.all(0),
+              child: Text(
+                null == _typeMap ? "" : _typeMap["name"],
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: Image(
+                image: AssetImage('assets/project/menu_item.png'),
+              ),
+              highlightColor: Colors.white10,
+              splashColor: Colors.white10,
+              onPressed: () {
+                setState(() {
+                  print("abc");
+                  Scaffold.of(context).openEndDrawer();
+                });
+              },
+            ),
+          ],
+        ));
   }
 
   Widget _buildListView() {
@@ -102,9 +118,14 @@ class ProjectPageState extends State<ProjectPage> {
         height: 250,
         color: Colors.white,
         child: InkWell(
-          onTap: (){
+          onTap: () {
             if (data["link"] != null) {
-              CommonUtil.jumpToOtherPage(context, WebPage(loadUrl: data["link"], title: data["title"],));
+              CommonUtil.jumpToOtherPage(
+                  context,
+                  WebPage(
+                    loadUrl: data["link"],
+                    title: data["title"],
+                  ));
             }
           },
           child: Stack(
@@ -122,8 +143,10 @@ class ProjectPageState extends State<ProjectPage> {
                 top: 0,
                 right: 15,
                 child: IconButton(
-                  icon: Image(image: AssetImage('assets/mine/heart.png'),),
-                  onPressed: (){
+                  icon: Image(
+                    image: AssetImage('assets/mine/heart.png'),
+                  ),
+                  onPressed: () {
                     CommonUtil.clickFavouriteBtn(context, data);
                   },
                 ),
@@ -131,7 +154,10 @@ class ProjectPageState extends State<ProjectPage> {
               Positioned(
                 top: 12,
                 left: 50,
-                child: Text(data["author"], style: TextStyle(fontSize: 14),),
+                child: Text(
+                  data["author"],
+                  style: TextStyle(fontSize: 14),
+                ),
               ),
               Positioned(
                 top: 45,
@@ -147,40 +173,48 @@ class ProjectPageState extends State<ProjectPage> {
                 top: 185,
                 left: 15,
                 right: 15,
-                child: Text(data["title"], style: TextStyle(fontSize: 15),),
+                child: Text(
+                  data["title"],
+                  style: TextStyle(fontSize: 15),
+                ),
               ),
               Positioned(
                 top: 225,
                 left: 15,
-                child: Text(data["niceDate"], style: TextStyle(fontSize: 13),),
+                child: Text(
+                  data["niceDate"],
+                  style: TextStyle(fontSize: 13),
+                ),
               ),
             ],
           ),
-        )
-    );
+        ));
   }
 
   Widget _buildDrawerListView() {
-    return Drawer(
-      child: ListView.separated(
-        separatorBuilder: (BuildContext context, int index) {
-          return Divider(
-            color: Colors.black26,
-            height: 1,
-          );
-        },
-        itemCount: _typesList.length,
-        itemBuilder: (BuildContext context, int position) {
-          return _buildDrawerItem(_typesList[position]);
-        },
-      )
+    return Container(
+      width: 200,
+      child: Drawer(
+        child: ListView.separated(
+          separatorBuilder: (BuildContext context, int index) {
+            return Divider(
+              color: Colors.black26,
+              height: 1,
+            );
+          },
+          itemCount: _typesList.length,
+          itemBuilder: (BuildContext context, int position) {
+            return _buildDrawerItem(_typesList[position]);
+          },
+        ),
+      ),
     );
   }
 
   Widget _buildDrawerItem(Map data) {
     return ListTile(
       leading: Text(data["name"]),
-      onTap: (){
+      onTap: () {
         _typeMap = data;
         _loadDataByType();
         Navigator.of(context).pop();
@@ -199,7 +233,7 @@ class ProjectPageState extends State<ProjectPage> {
       }, (error) {
         print(error);
       });
-    }).then((_){
+    }).then((_) {
       _loadDataByType();
     });
   }

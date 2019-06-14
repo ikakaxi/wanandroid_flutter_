@@ -55,7 +55,7 @@ class HomePageState extends State<HomePage> {
       },
       separatorBuilder: (BuildContext context, int index) {
         return Divider(
-          height: (index == 0 || index==1) ? 0 : 10,
+          height: (index == 0 || index == 1) ? 0 : 10,
           color: Colors.black12,
         );
       },
@@ -75,73 +75,129 @@ class HomePageState extends State<HomePage> {
       itemCount: _bannerData.length,
       pagination: new SwiperPagination(),
       control: new SwiperControl(),
-      onTap: (int index){
+      onTap: (int index) {
         if (_bannerData[index]["url"] != null) {
-          CommonUtil.jumpToOtherPage(context, WebPage(loadUrl: _bannerData[index]["url"], title: _bannerData[index]["title"],));
+          CommonUtil.jumpToOtherPage(
+              context,
+              WebPage(
+                loadUrl: _bannerData[index]["url"],
+                title: _bannerData[index]["title"],
+              ));
         }
       },
     );
   }
 
   Widget _buildItem(Map data) {
-    return Container(
-      height: 120,
-      color: Colors.white,
-      child: InkWell(
-        onTap: (){
-          if (data["link"] != null) {
-            CommonUtil.jumpToOtherPage(context, WebPage(loadUrl: data["link"], title: data["title"],));
-          }
-        },
-        child: Stack(
-          children: <Widget>[
-            Positioned(
-              top: 8,
-              left: 15,
-              child: Image(
-                width: 25,
-                height: 25,
-                image: AssetImage('assets/mine/header.png'),
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Row(
+                  children: <Widget>[
+                    Image.asset(
+                      'assets/mine/header.png',
+                      width: 25,
+                      height: 25,
+                    ),
+                    Text(
+                      data["author"],
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Positioned(
-              top: 0,
-              right: 15,
-              child: IconButton(
-                icon: Image(image: AssetImage('assets/mine/heart.png'),),
-                onPressed: (){
-                  CommonUtil.clickFavouriteBtn(context, data);
-                },
+              Image.asset('assets/mine/heart.png'),
+            ],
+          ),
+          Text(
+            data["title"],
+            style: TextStyle(fontSize: 15),
+          ),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      _getCategoryString(data),
+                      style: TextStyle(fontSize: 13),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Positioned(
-              top: 12,
-              left: 50,
-              child: Text(data["author"], style: TextStyle(fontSize: 14),),
-            ),
-            Positioned(
-              top: 45,
-              left: 15,
-              right: 15,
-              child: Text(data["title"], style: TextStyle(fontSize: 15),),
-            ),
-            Positioned(
-              top: 95,
-              left: 15,
-              child: Text(_getCategoryString(data), style: TextStyle(fontSize: 13),),
-            ),
-            Positioned(
-              top: 90,
-              right: 15,
-              child: Text(data["niceDate"], style: TextStyle(fontSize: 13),),
-            ),
-          ],
-        ),
-      )
+              Text(
+                data["niceDate"],
+                style: TextStyle(fontSize: 13),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
+//  Widget _buildItem(Map data) {
+//    return Container(
+//      height: 120,
+//      color: Colors.white,
+//      child: InkWell(
+//        onTap: (){
+//          if (data["link"] != null) {
+//            CommonUtil.jumpToOtherPage(context, WebPage(loadUrl: data["link"], title: data["title"],));
+//          }
+//        },
+//        child: Stack(
+//          children: <Widget>[
+//            Positioned(
+//              top: 8,
+//              left: 15,
+//              child: Image(
+//                width: 25,
+//                height: 25,
+//                image: AssetImage('assets/mine/header.png'),
+//              ),
+//            ),
+//            Positioned(
+//              top: 0,
+//              right: 15,
+//              child: IconButton(
+//                icon: Image(image: AssetImage('assets/mine/heart.png'),),
+//                onPressed: (){
+//                  CommonUtil.clickFavouriteBtn(context, data);
+//                },
+//              ),
+//            ),
+//            Positioned(
+//              top: 12,
+//              left: 50,
+//              child: Text(data["author"], style: TextStyle(fontSize: 14),),
+//            ),
+//            Positioned(
+//              top: 45,
+//              left: 15,
+//              right: 15,
+//              child: Text(data["title"], style: TextStyle(fontSize: 15),),
+//            ),
+//            Positioned(
+//              top: 95,
+//              left: 15,
+//              child: Text(_getCategoryString(data), style: TextStyle(fontSize: 13),),
+//            ),
+//            Positioned(
+//              top: 90,
+//              right: 15,
+//              child: Text(data["niceDate"], style: TextStyle(fontSize: 13),),
+//            ),
+//          ],
+//        ),
+//      )
+//    );
+//  }
 
-  String _getCategoryString(Map data){
+  String _getCategoryString(Map data) {
     String category = data["chapterName"];
     String superCategory = data["superChapterName"];
     return "分类：$superCategory/$category";

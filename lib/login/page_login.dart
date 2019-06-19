@@ -91,6 +91,7 @@ class LoginPageState extends State<LoginPage> {
   void _login(String acount, String pwd) {
     Map<String, dynamic> param = {"username": acount, "password": pwd};
     NetWorkUtil().POST(Api.login, param, (success) {
+      CommonUtil.storeUserInfo(acount, pwd, success["data"]["id"]);
       print(success);
       Navigator.of(context).pop();
     }, (error) {

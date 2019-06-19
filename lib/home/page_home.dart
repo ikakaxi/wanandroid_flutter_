@@ -4,6 +4,7 @@ import 'package:wanandroid_flutter/common/api.dart';
 import 'package:wanandroid_flutter/network/networkUtil.dart';
 import 'package:wanandroid_flutter/common/commonUtil.dart';
 import 'package:wanandroid_flutter/web/page_web.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -15,20 +16,44 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   List _dataArray = [];
   List _bannerData = [];
+  int _page = 0;
+
+  RefreshController _refreshController;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _loadBannerInfo();
-    _loadData(0);
+    if (mounted != null) {
+      _loadBannerInfo();
+      _loadData();
+      _refreshController = RefreshController(initialRefresh: true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildListVie(),
+      body: SmartRefresher(
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+//        header: _header,
+        enablePullDown: true,
+        enablePullUp: true,
+        controller: _refreshController,
+        child: _buildListVie(),
+      ),
     );
+  }
+
+  _onLoading() {
+    _page = _page + 1;
+    _loadData(page:_page);
+  }
+
+  _onRefresh() {
+    _page = 0;
+    _loadData();
   }
 
   Widget _buildListVie() {
@@ -91,111 +116,80 @@ class HomePageState extends State<HomePage> {
   Widget _buildItem(Map data) {
     return Padding(
       padding: EdgeInsets.all(10),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Row(
-                  children: <Widget>[
-                    Image.asset(
-                      'assets/mine/header.png',
-                      width: 25,
-                      height: 25,
-                    ),
-                    Text(
-                      data["author"],
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ],
+      child: InkWell(
+        onTap: () {
+          if (data["link"] != null) {
+            CommonUtil.jumpToOtherPage(
+                context,
+                WebPage(
+                  loadUrl: data["link"],
+                  title: data["title"],
+                ));
+          }
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      Image.asset(
+                        'assets/mine/header.png',
+                        width: 25,
+                        height: 25,
+                      ),
+                      Padding(padding: EdgeInsets.only(left: 10)),
+                      Text(
+                        data["author"],
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Image.asset('assets/mine/heart.png'),
-            ],
-          ),
-          Text(
-            data["title"],
-            style: TextStyle(fontSize: 15),
-          ),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      _getCategoryString(data),
-                      style: TextStyle(fontSize: 13),
-                    ),
-                  ],
+                InkWell(
+                  onTap: () {
+                    CommonUtil.clickFavouriteBtn(context, data);
+                  },
+                  child: Image.asset('assets/mine/heart.png'),
                 ),
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Text(
+                data["title"],
+                textAlign: TextAlign.left,
+                style: TextStyle(fontSize: 15),
               ),
-              Text(
-                data["niceDate"],
-                style: TextStyle(fontSize: 13),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Row(
+                      children: <Widget>[
+                        Text(
+                          _getCategoryString(data),
+                          style: TextStyle(fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    data["niceDate"],
+                    style: TextStyle(fontSize: 13),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
-//  Widget _buildItem(Map data) {
-//    return Container(
-//      height: 120,
-//      color: Colors.white,
-//      child: InkWell(
-//        onTap: (){
-//          if (data["link"] != null) {
-//            CommonUtil.jumpToOtherPage(context, WebPage(loadUrl: data["link"], title: data["title"],));
-//          }
-//        },
-//        child: Stack(
-//          children: <Widget>[
-//            Positioned(
-//              top: 8,
-//              left: 15,
-//              child: Image(
-//                width: 25,
-//                height: 25,
-//                image: AssetImage('assets/mine/header.png'),
-//              ),
-//            ),
-//            Positioned(
-//              top: 0,
-//              right: 15,
-//              child: IconButton(
-//                icon: Image(image: AssetImage('assets/mine/heart.png'),),
-//                onPressed: (){
-//                  CommonUtil.clickFavouriteBtn(context, data);
-//                },
-//              ),
-//            ),
-//            Positioned(
-//              top: 12,
-//              left: 50,
-//              child: Text(data["author"], style: TextStyle(fontSize: 14),),
-//            ),
-//            Positioned(
-//              top: 45,
-//              left: 15,
-//              right: 15,
-//              child: Text(data["title"], style: TextStyle(fontSize: 15),),
-//            ),
-//            Positioned(
-//              top: 95,
-//              left: 15,
-//              child: Text(_getCategoryString(data), style: TextStyle(fontSize: 13),),
-//            ),
-//            Positioned(
-//              top: 90,
-//              right: 15,
-//              child: Text(data["niceDate"], style: TextStyle(fontSize: 13),),
-//            ),
-//          ],
-//        ),
-//      )
-//    );
-//  }
 
   String _getCategoryString(Map data) {
     String category = data["chapterName"];
@@ -204,13 +198,32 @@ class HomePageState extends State<HomePage> {
   }
 
   // network
-  void _loadData(int page) {
+  void _loadData({int page=0}) {
     NetWorkUtil().GET("/article/list/$page/json", null, (success) {
+      List tempList=[];
+      List list = success["data"]["datas"];
+      if (page == 0) {
+        tempList = list;
+        _refreshController.refreshCompleted(resetFooterState: true);
+      } else {
+        tempList = _dataArray;
+        if (list.length == 0) {
+          _refreshController.loadNoData();
+        } else {
+          tempList.addAll(list);
+          _refreshController.loadComplete();
+        }
+      }
       setState(() {
-        _dataArray = success["data"]["datas"];
+        _dataArray = tempList;
         print(_dataArray);
       });
     }, (error) {
+      if (page == 0) {
+        _refreshController.refreshFailed();
+      } else {
+        _refreshController.loadFailed();
+      }
       print(error);
     });
   }
@@ -227,6 +240,8 @@ class HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    // TODO: implement dispose
+    _refreshController.dispose();
     super.dispose();
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:wanandroid_flutter/bloc/bloc_provider.dart';
+import 'package:wanandroid_flutter/bloc/home_bloc.dart';
 import 'package:wanandroid_flutter/common/api.dart';
 import 'package:wanandroid_flutter/network/networkUtil.dart';
 import 'package:wanandroid_flutter/common/commonUtil.dart';
@@ -25,7 +27,7 @@ class HomePageState extends State<HomePage> {
     // TODO: implement initState
     super.initState();
     if (mounted != null) {
-      _loadBannerInfo();
+//      _loadBannerInfo();
       _loadData();
       _refreshController = RefreshController(initialRefresh: true);
     }
@@ -41,14 +43,14 @@ class HomePageState extends State<HomePage> {
         enablePullDown: true,
         enablePullUp: true,
         controller: _refreshController,
-        child: _buildListVie(),
+        child: _buildListView(),
       ),
     );
   }
 
   _onLoading() {
     _page = _page + 1;
-    _loadData(page:_page);
+    _loadData(page: _page);
   }
 
   _onRefresh() {
@@ -56,13 +58,18 @@ class HomePageState extends State<HomePage> {
     _loadData();
   }
 
-  Widget _buildListVie() {
+  Widget _buildListView() {
     return ListView.separated(
       itemBuilder: (BuildContext context, int position) {
         if (position == 0) {
           return Container(
             height: 170,
-            child: _bannerData.length > 0 ? _buildSwiper() : Container(),
+            child: _bannerData.length > 0
+                ? ProviderBloc(
+                    bloc: HomeBloc(),
+                    child: _buildSwiper(),
+                  )
+                : Container(),
           );
         } else if (position == 1) {
           return Container(
@@ -75,7 +82,10 @@ class HomePageState extends State<HomePage> {
             ),
           );
         } else {
-          return _buildItem(_dataArray[position - 2]);
+          return Container(
+            color: Colors.white,
+            child: _buildItem(_dataArray[position - 2]),
+          );
         }
       },
       separatorBuilder: (BuildContext context, int index) {
@@ -89,26 +99,34 @@ class HomePageState extends State<HomePage> {
   }
 
   Widget _buildSwiper() {
-    return Swiper(
-      itemBuilder: (BuildContext context, int index) {
-        return new Image.network(
-          _bannerData[index]["imagePath"],
-          fit: BoxFit.fill,
+    HomeBloc homeBloc = ProviderBloc.of(context);
+    return StreamBuilder(
+      stream: homeBloc.homeBlocStream,
+      builder: (BuildContext context, AsyncSnapshot<List<Map>> snapshot) {
+        print(snapshot);
+        _bannerData = snapshot as List;
+        return Swiper(
+          itemBuilder: (BuildContext context, int index) {
+            return new Image.network(
+              _bannerData[index]["imagePath"],
+              fit: BoxFit.fill,
+            );
+          },
+          autoplay: true,
+          itemCount: _bannerData.length,
+          pagination: new SwiperPagination(),
+          control: new SwiperControl(),
+          onTap: (int index) {
+            if (_bannerData[index]["url"] != null) {
+              CommonUtil.jumpToOtherPage(
+                  context,
+                  WebPage(
+                    loadUrl: _bannerData[index]["url"],
+                    title: _bannerData[index]["title"],
+                  ));
+            }
+          },
         );
-      },
-      autoplay: true,
-      itemCount: _bannerData.length,
-      pagination: new SwiperPagination(),
-      control: new SwiperControl(),
-      onTap: (int index) {
-        if (_bannerData[index]["url"] != null) {
-          CommonUtil.jumpToOtherPage(
-              context,
-              WebPage(
-                loadUrl: _bannerData[index]["url"],
-                title: _bannerData[index]["title"],
-              ));
-        }
       },
     );
   }
@@ -198,9 +216,9 @@ class HomePageState extends State<HomePage> {
   }
 
   // network
-  void _loadData({int page=0}) {
+  void _loadData({int page = 0}) {
     NetWorkUtil().GET("/article/list/$page/json", null, (success) {
-      List tempList=[];
+      List tempList = [];
       List list = success["data"]["datas"];
       if (page == 0) {
         tempList = list;
@@ -228,15 +246,15 @@ class HomePageState extends State<HomePage> {
     });
   }
 
-  void _loadBannerInfo() {
-    NetWorkUtil().GET(Api.homeBanner, null, (success) {
-      setState(() {
-        _bannerData = success['data'];
-      });
-    }, (error) {
-      print(error);
-    });
-  }
+//  void _loadBannerInfo() {
+//    NetWorkUtil().GET(Api.homeBanner, null, (success) {
+//      setState(() {
+//        _bannerData = success['data'];
+//      });
+//    }, (error) {
+//      print(error);
+//    });
+//  }
 
   @override
   void dispose() {

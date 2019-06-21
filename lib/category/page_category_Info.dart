@@ -97,7 +97,10 @@ class CategoryInfoState extends State<CategoryInfoPage>
           controller: _refreshController,
           child: ListView.separated(
             itemBuilder: (BuildContext context, int index) {
-              return _buildListItem(dataList[index]);
+              return Container(
+                color: Colors.white,
+                child: _buildListItem(dataList[index]),
+              );
             },
             separatorBuilder: (BuildContext context, int index) {
               return Divider(
